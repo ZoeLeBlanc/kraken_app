@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import { getPeopleIfNeeded } from '../actions/peopleActions';
+import { fetchPeopleIfNeeded } from '../actions/peopleActions';
 
 export class People extends React.Component {
   constructor(props) {
@@ -16,16 +16,12 @@ export class People extends React.Component {
 
   render() {
     const { people, isFetching } = this.props
-    console.log(people)
     return (
       <ul>
         Person
         {isFetching ?
-          <h2>Loading ...</h2> :
-          {people.map( (person) => {
-            <li>{person.first_name} {person.last_name}</li>
-            })
-          }
+          <h2>Loading</h2> :
+          null
         }
       </ul>
     );
@@ -50,7 +46,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     getAllPeople: () => {
-      dispatch(getPeopleIfNeeded())
+      dispatch(fetchPeopleIfNeeded())
     }
   };
 }

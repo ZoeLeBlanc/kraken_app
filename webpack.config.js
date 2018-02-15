@@ -30,7 +30,9 @@ const common = {
   devServer: {
     contentBase: path.join(__dirname, 'build'),
   },
-  entry: path.join(paths.src, 'index.js'),
+  entry: [
+    "babel-polyfill",
+    path.join(paths.src, 'index.js')],
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
@@ -93,7 +95,7 @@ const devSettings = {
   output: {
     path: paths.build,
     filename: 'bundle.js',
-    publicPath: '/'
+    publicPath: '/build/'
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
