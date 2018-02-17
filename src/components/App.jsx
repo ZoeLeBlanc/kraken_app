@@ -1,15 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import routes from '../routes';
 
-export default class AppWrapper extends React.Component {
-  render() {
-    return (
-      <div className='app-container'>
-        <Link to={'/'}>Home</Link>
-        <Link to={'/about'}>About</Link>
-        <Link to={'/people'}>People</Link>
-        {this.props.children}
-      </div>
-    )
-  }
-}
+const App = () => (
+    <div>
+        <h1>Kraken</h1>
+        { routes }
+        <footer >
+            <Link to="/">Filterable Table</Link>
+            <Link to="/about">About</Link>
+            <Link to="/people">People</Link>
+        </footer>
+    </div>
+);
+
+
+export default App;
