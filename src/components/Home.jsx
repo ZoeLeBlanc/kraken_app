@@ -1,9 +1,10 @@
 import React from 'react';
-const Home = (props) => (
-  <div className='home'>
-    Home
 
-  </div>
-)
+const Home = () => (
+    <div>
+      Home
+
+    </div>
+);
 
 export default Home;

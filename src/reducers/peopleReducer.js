@@ -1,23 +1,23 @@
-import { LOAD_PEOPLE, REQUEST_PEOPLE } from '../actions/peopleActions'
+import { LOAD_PEOPLE, REQUEST_PEOPLE } from '../actions/peopleActions';
 
 const peopleReducer = (state = {
-  isFetching: false,
-  people: []
+    isFetching: false,
+    people: []
 }, action) => {
-  switch (action.type) {
-    case REQUEST_PEOPLE:
-      return {
-        ...state,
-        isFetching: true
-      }
-    case LOAD_PEOPLE:
-      return {
-        ...state,
-        isFetching: false,
-        items: action.people,
-      }
-    default:
-      return state
-  }
-}
+    switch (action.type) {
+        case REQUEST_PEOPLE:
+            return {
+                ...state,
+                isFetching: true
+            };
+        case LOAD_PEOPLE:
+            return {
+                ...state,
+                isFetching: false,
+                people: action.people,
+            };
+        default:
+            return state;
+    }
+};
 export default peopleReducer;
