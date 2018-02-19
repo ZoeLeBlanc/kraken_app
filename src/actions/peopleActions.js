@@ -23,6 +23,19 @@ const shouldFetchPeople = (state) => {
     return (null);
 };
 
+const getPeople = (dispatch) => {
+    dispatch(requestPeople());
+    return fetch('http://localhost:7082/api/get_people')
+        .then(response => response.json()
+            .catch(err => {
+                return err;
+            })
+            .then(json => {
+                console.log(json);
+                dispatch(loadPeople(json));
+            })
+        );
+};
 export const fetchPeopleIfNeeded = () => {
     return (dispatch, getState) => {
         if (shouldFetchPeople(getState())) {
@@ -30,19 +43,4 @@ export const fetchPeopleIfNeeded = () => {
         }
         return (null);
     };
-};
-
-const getPeople = (dispatch) => {
-    dispatch(requestPeople());
-    return fetch('http://localhost:7082/api/get_people')
-        .then(response => response.json()
-            .catch(err => {
-                console.err(`'${err}' happened!`);
-                return {};
-            })
-            .then(json => {
-                console.log(json);
-                dispatch(loadPeople(json));
-            })
-        );
 };
