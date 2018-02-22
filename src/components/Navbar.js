@@ -22,7 +22,9 @@ const links = [
     {'people': '/people'},
     {'about': '/about'},
     {'graph': '/graph'},
-    {'Graph Test': '/graphtest'}
+    {'Graph Test': '/graphtest'},
+    {'Projects': '/projects'},
+    {'Test': '/test'}
 ];
 
 

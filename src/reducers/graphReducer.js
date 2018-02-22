@@ -13,7 +13,7 @@ const graphReducer = (state = {
         case LOAD_GRAPH:
             return {
                 ...state,
-                isFetching: false,
+                isFetching: true,
                 graph: action.graph,
             };
         default:
