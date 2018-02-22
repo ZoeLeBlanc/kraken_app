@@ -10,19 +10,19 @@ export const requestGraph = () => ({
     type: 'REQUEST_GRAPH'
 });
 
-const shouldFetchGraph = (state) => {
-    const { graphReducer } = state;
-    const graph = graphReducer.graph;
-    const isFetching = graphReducer.isFetching;
-    console.log(graph.length);
-    if (graph.length === undefined) {
-        return true;
-    }
-    if (isFetching) {
-        return false;
-    }
-    return (null);
-};
+// const shouldFetchGraph = (state) => {
+//     const { graphReducer } = state;
+//     const graph = graphReducer.graph;
+//     const isFetching = graphReducer.isFetching;
+//     console.log(graph.length);
+//     if (graph.length === undefined) {
+//         return true;
+//     }
+//     if (isFetching) {
+//         return false;
+//     }
+//     return (null);
+// };
 
 const getGraph = (dispatch) => {
     dispatch(requestGraph());
@@ -38,10 +38,7 @@ const getGraph = (dispatch) => {
         );
 };
 export const fetchGraphIfNeeded = () => {
-    return (dispatch, getState) => {
-        if (shouldFetchGraph(getState())) {
-            return getGraph(dispatch);
-        }
-        return (null);
+    return (dispatch) => {
+        return getGraph(dispatch);
     };
 };
