@@ -21,17 +21,13 @@ const styles = {
 const links = [
     {'people': '/people'},
     {'about': '/about'},
-    {'graph': '/graph'},
-    {'Graph Test': '/graphtest'},
-    {'Projects': '/projects'},
-    {'Test': '/test'}
+    {'dashboard': '/dashboard'},
 ];
 
 
 class Navbar extends Component {
     renderLinks() {
         return links.map( (link, i) => {
-            console.log(Object.keys(link)[0], Object.values(link)[0]);
             return (
                 <Button key={i} color="inherit" href={Object.values(link)[0]}>{Object.keys(link)[0]}</Button>
             );

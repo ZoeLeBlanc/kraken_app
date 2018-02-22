@@ -2,15 +2,13 @@ import * as React from 'react';
 import * as d3 from 'd3';
 import Links from './links';
 import Nodes from './nodes';
-import Labels from './labels';
+import NodeLabels from './NodeLabels';
 import LinkLabels from './LinkLabels';
-import '../assets/styles/App.css';
 import PropTypes from 'prop-types';
 
-export default class FinalD3Graph extends React.Component {
+export default class D3ForceGraph extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props);
     }
 
     componentDidMount() {
@@ -21,8 +19,7 @@ export default class FinalD3Graph extends React.Component {
         this.setState({nodes: nextProps.nodes, links: nextProps.links});
     }
     shouldComponentUpdate(nextProps) {
-    // clearly you'd want a differnet conditional, but this works for now
-        return nextProps.nodes.length !== this.props.nodes.length;
+        return (nextProps.nodes.length !== this.props.nodes.length || nextProps.links.length !== this.props.links.length);
     }
 
     componentWillUpdate(nextProps) {
@@ -35,10 +32,6 @@ export default class FinalD3Graph extends React.Component {
     componentWillUnmount() {
         this.simulation.stop();
     }
-    getSimulation() {
-        console.log(this.simulation);
-        return this.simulation;
-    }
     sim(data) {
         this.simulation = d3.forceSimulation(data.nodes)
             .force('charge',
@@ -50,7 +43,6 @@ export default class FinalD3Graph extends React.Component {
             .force('center', d3.forceCenter(data.width / 2, data.height / 2))
             .force('y', d3.forceY(0))
             .force('x', d3.forceX(0));
-        return this.simulation;
     }
     runSim(data) {
         this.simulation
@@ -100,8 +92,8 @@ export default class FinalD3Graph extends React.Component {
         if (!d3.event.active) {
             this.simulation.alphaTarget(0);
         }
-        d.fx = null;
-        d.fy = null;
+        d.fx = d.x;
+        d.fy = d.y;
     }
     render() {
         const { width, height, nodes, links } = this.props;
@@ -111,15 +103,16 @@ export default class FinalD3Graph extends React.Component {
                 <Links links={links} />
                 <LinkLabels links={links} />
                 <Nodes nodes={nodes} onDragStart={(d)=>this.onDragStart(d)} onDrag={(d) =>this.onDrag(d)} onDragEnd={(d)=>this.onDragEnd(d)} />
-                <Labels nodes={nodes} />
+                <NodeLabels nodes={nodes} />
             </svg>
         );
     }
 }
 
-FinalD3Graph.propTypes = {
+D3ForceGraph.propTypes = {
     nodes: PropTypes.array,
     links: PropTypes.array,
     width: PropTypes.number,
     height: PropTypes.number,
+    forceStrength: PropTypes.number,
 };

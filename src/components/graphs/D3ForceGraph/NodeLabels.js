@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
-export default class Labels extends React.Component {
+export default class NodeLabels extends React.Component {
     componentDidMount() {
         this.svg = d3.selectAll('.labels');
         this.svg.selectAll('text')
@@ -21,6 +21,6 @@ export default class Labels extends React.Component {
     }
 }
 
-Labels.propTypes = {
+NodeLabels.propTypes = {
     nodes: PropTypes.array,
 };
