@@ -5,10 +5,16 @@ import Nodes from './nodes';
 import NodeLabels from './NodeLabels';
 import LinkLabels from './LinkLabels';
 import PropTypes from 'prop-types';
+import { FormGroup, FormControlLabel } from 'material-ui/Form';
+import Switch from 'material-ui/Switch';
+// import Typography from 'material-ui/Typography';
+import Paper from 'material-ui/Paper';
+import '../../../assets/styles/App.css';
 
 export default class D3ForceGraph extends React.Component {
     constructor(props) {
         super(props);
+        console.log(this.props.radius);
     }
 
     componentDidMount() {
@@ -16,15 +22,15 @@ export default class D3ForceGraph extends React.Component {
         this.runSim(this.props);
     }
     componentWillReceiveProps(nextProps) {
-        this.setState({nodes: nextProps.nodes, links: nextProps.links});
+        this.setState({links: nextProps.links, nodes: nextProps.nodes, zoom: nextProps.zoom});
     }
     shouldComponentUpdate(nextProps) {
-        return (nextProps.nodes.length !== this.props.nodes.length || nextProps.links.length !== this.props.links.length);
+        return (nextProps.zoom !== this.props.zoom);
     }
 
-    componentWillUpdate(nextProps) {
+    componentDidUpdate(nextProps) {
+        d3.selectAll('defs').remove();
         this.simulation.stop();
-        d3.selectAll('g').remove();
         this.sim(nextProps);
         this.runSim(nextProps);
     }
@@ -32,6 +38,7 @@ export default class D3ForceGraph extends React.Component {
     componentWillUnmount() {
         this.simulation.stop();
     }
+
     sim(data) {
         this.simulation = d3.forceSimulation(data.nodes)
             .force('charge',
@@ -47,13 +54,43 @@ export default class D3ForceGraph extends React.Component {
     runSim(data) {
         this.simulation
             .nodes(data.nodes)
-            .on('tick', this.ticked);
+            .on('tick', () => this.ticked(data));
 
         this.simulation
             .force('link')
             .links(data.links);
+
+        this.linkedByIndex = {};
+        data.links.forEach(d => {
+            this.linkedByIndex[`${d.source.index},${d.target.index}`] = 1;
+        });
+        d3.selectAll('svg')
+            .append('svg:defs').selectAll('marker')
+            .data([{ id: 'end-arrow', opacity: 1 }, { id: 'end-arrow-fade', opacity: 0.1 }])
+            .enter().append('marker')
+            .attr('id', d => d.id)
+            .attr('viewBox', '0 0 10 10')
+            .attr('refX', 2 + 18)
+            .attr('refY', 5)
+            .attr('markerWidth', 4)
+            .attr('markerHeight', 4)
+            .attr('orient', 'auto')
+            .append('svg:path')
+            .attr('d', 'M0,0 L0,10 L10,5 z')
+            .style('opacity', d => d.opacity);
+
+        this.props.zoom === true ?
+            d3.selectAll('svg')
+                .append('rect')
+                .attr('width', this.props.width)
+                .attr('height', this.props.height)
+                .style('fill', 'none')
+                .style('pointer-events', 'all')
+                .call(d3.zoom()
+                    .scaleExtent([1 / 2, 4])
+                    .on('zoom', () => this.zoomActions())) : d3.selectAll('rect').remove();
     }
-    ticked() {
+    ticked(data) {
         const link = d3.selectAll('line');
         link.attr('x1', d => d.source.x)
             .attr('y1', d => d.source.y)
@@ -62,20 +99,39 @@ export default class D3ForceGraph extends React.Component {
 
         link.exit().remove();
 
-        const linkT = d3.selectAll('.linkLabel');
-        linkT
+        const linkLabel = d3.selectAll('.linkLabel');
+        linkLabel
             .attr('x', d => (d.source.x + d.target.x) / 2 )
             .attr('y', d => (d.source.y + d.target.y) / 2 );
 
-        const node = d3.selectAll('circle');
+        const node = d3.selectAll('.node');
         node
-            .attr('cx', d => d.x)
-            .attr('cy', d => d.y);
+            .attr('transform', d => {
+                console.log(data.radius);
+                d.x = Math.max(data.radius, Math.min(data.width - data.radius, d.x));
+                d.y = Math.max(data.radius, Math.min(data.height - data.radius, d.y));
+                return `translate(${d.x},${d.y})`;
+            });
 
-        const nodeT = d3.selectAll('.label');
-        nodeT
+        const nodeLabel = d3.selectAll('.nodeLabel');
+        nodeLabel
             .attr('x', d => d.x)
             .attr('y', d => d.y);
+    }
+    fade(opacity, d) {
+        const node = d3.selectAll('.node');
+        node.style('stroke-opacity', (o) => this.isConnected(d, o) ? 1 : opacity);
+        node.attr('fill-opacity', (o) => this.isConnected(d, o) ? 1 : opacity);
+        const nodeLabel = d3.selectAll('.nodeLabel');
+        nodeLabel.style('opacity', (o) => this.isConnected(d, o) ? 1 : opacity);
+        const link = d3.selectAll('.link');
+        link.style('stroke-opacity', o => (o.source === d || o.target === d ? 1 : opacity));
+        link.attr('marker-end', o => (opacity === 1 || o.source === d || o.target === d ? 'url(#end-arrow)' : 'url(#end-arrow-fade)'));
+        const linkLabel = d3.selectAll('.linkLabel');
+        linkLabel.style('opacity', o => (o.source === d || o.target === d ? 1 : opacity));
+    }
+    isConnected(a, b) {
+        return this.linkedByIndex[`${a.index},${b.index}`] || this.linkedByIndex[`${b.index},${a.index}`] || a.index === b.index;
     }
     onDragStart(d: any) {
         if (!d3.event.active) {
@@ -95,24 +151,55 @@ export default class D3ForceGraph extends React.Component {
         d.fx = d.x;
         d.fy = d.y;
     }
+    zoomActions() {
+        d3.selectAll('svg')
+            .attr('transform', d3.event.transform);
+    }
     render() {
-        const { width, height, nodes, links } = this.props;
+        const { width, height, nodes, links, classes, switchChange, zoom, radius } = this.props;
         return (
-            <svg className="container"
-                width={width} height={height}>
-                <Links links={links} />
-                <LinkLabels links={links} />
-                <Nodes nodes={nodes} onDragStart={(d)=>this.onDragStart(d)} onDrag={(d) =>this.onDrag(d)} onDragEnd={(d)=>this.onDragEnd(d)} />
-                <NodeLabels nodes={nodes} />
-            </svg>
+            <Paper className={classes.paper}>
+                <FormGroup row>
+                    <FormControlLabel
+                        label="Hover Graph"
+                        control={
+                            <Switch
+                                checked={zoom}
+                                onChange={(e) => switchChange('zoom', e)}
+                                value="zoom"
+                                color="primary"
+                            />
+                        }
+                        label="Zoom Graph"
+                    />
+                </FormGroup>
+                <svg className="container" width={width} height={height}>
+                    <g className="everything">
+                        <Links links={links} fade={(o, d) => this.fade(o, d)} />
+                        <LinkLabels links={links} fade={(o, d) => this.fade(o, d)} />
+                        <Nodes radius={radius} nodes={nodes} onDragStart={(d)=>this.onDragStart(d)} onDrag={(d) =>this.onDrag(d)} onDragEnd={(d)=>this.onDragEnd(d)} fade={(o, d) => this.fade(o, d)} />
+                        <NodeLabels nodes={nodes} />
+                    </g>
+                </svg>
+            </Paper>
         );
     }
 }
-
+D3ForceGraph.defaultProps = {
+    width: 1500,
+    height: 700,
+    forceStrength: -1000,
+    linkDistance: 200,
+};
 D3ForceGraph.propTypes = {
     nodes: PropTypes.array,
     links: PropTypes.array,
     width: PropTypes.number,
     height: PropTypes.number,
     forceStrength: PropTypes.number,
+    zoom: PropTypes.bool,
+    linkDistance: PropTypes.number,
+    radius: PropTypes.number,
+    classes: PropTypes.object,
+    switchChange: PropTypes.func,
 };

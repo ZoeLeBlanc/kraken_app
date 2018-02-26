@@ -1,4 +1,4 @@
-.container {
+/* .container {
   background-color: #333;
 }
 
@@ -15,4 +15,32 @@
 .label {
   font-size: 10px;
   fill: #fff;
+} */
+.nodes circle {
+  fill: #DDD;
+  stroke: #777;
+  stroke-width: 2px;
+}
+
+.nodes text {
+  font-family: sans-serif;
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.links line {
+  stroke: #88A;
+  stroke-width: 4px;
+}
+
+
+text {
+  font: 18px sans-serif;
+  pointer-events: none;
+}
+
+#end-arrow {
+  fill: #88A;
 }

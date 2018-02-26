@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import { fetchGraphIfNeeded } from '../../actions/graphActions';
 import D3ForceGraph from '../../components/graphs/D3ForceGraph';
-import Paper from 'material-ui/Paper';
 import compose from 'recompose/compose';
 // import Typography from 'material-ui/Typography';
 import Grid from 'material-ui/Grid';
@@ -17,6 +16,7 @@ const styles = theme => ({
         flexGrow: 1,
     }),
     paper: {
+        height: 600,
         padding: theme.spacing.unit * 2,
         textAlign: 'center',
         color: theme.palette.text.secondary,
@@ -28,6 +28,10 @@ export class Dashboard extends React.Component {
     }
     componentDidMount() {
         this.props.getGraph();
+        this.state = {zoom: false};
+    }
+    switchChange(name, event) {
+        this.setState({ [name]: event.target.checked });
     }
     renderGraph() {
         const {graph, classes} = this.props;
@@ -38,9 +42,12 @@ export class Dashboard extends React.Component {
             <div className={classes.root}>
                 <Grid container spacing={24}>
                     <Grid item xs={12}>
-                        <Paper className={classes.paper}>
-                            <D3ForceGraph nodes={g.nodes} links= {g.edges} height={400} width={900} />
-                        </Paper>
+                        <D3ForceGraph nodes={g.nodes} links= {g.edges} height={350} width={900}
+                            radius={18}
+                            zoom={this.state.zoom}
+                            switchChange={(name, event) => this.switchChange(name, event)}
+                            classes={classes}
+                        />
                     </Grid>
                 </Grid>
             </div>
