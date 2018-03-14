@@ -22,14 +22,17 @@ class UpdatedD3Graph extends React.Component {
         this.setup(this.props);
         this.runSim(this.props);
     }
-
+    componentWillReceiveProps(nextProps) {
+        this.setState({nodes: nextProps.nodes, links: nextProps.links, zoom: nextProps.zoom});
+    }
     shouldComponentUpdate(nextProps) {
     // clearly you'd want a differnet conditional, but this works for now
-        return nextProps.nodes.length !== this.props.nodes.length;
+        return (nextProps.nodes.length !== this.props.nodes.length || nextProps.zoom !== this.props.zoom);
     }
 
-    componentWillUpdate(nextProps) {
+    componentDidUpdate(nextProps) {
         this.simulation.stop();
+        d3.selectAll('defs').remove();
         d3.selectAll('g').remove();
         this.sim(nextProps);
         this.setup(nextProps);
@@ -39,6 +42,7 @@ class UpdatedD3Graph extends React.Component {
     componentWillUnmount() {
         this.simulation.stop();
     }
+
     dragstarted(d) {
         if (!d3.event.active) {
             this.simulation.alphaTarget(0.3).restart();
@@ -58,7 +62,36 @@ class UpdatedD3Graph extends React.Component {
         d.fx = d.x;
         d.fy = d.y;
     }
-
+    clicked(d1) {
+        const selectedNode = d3.selectAll('.node')
+            .each( (d) => d1.id === d.id);
+        console.log(selectedNode.node(), this.props.height, this.props.width);
+        const bbox = selectedNode.node().getBBox();
+        const bx = bbox.x;
+        const by = bbox.y;
+        const bw = bbox.width;
+        const bh = bbox.height;
+        const scale = Math.max(1, Math.min(8, 0.9 / Math.max(bx / this.props.width, by / this.props.height)));
+        const svg = d3.selectAll('.everything');
+        const container = svg.node().getBBox();
+        // const tx = -bx * scale + container.x + container.width / 2 - bw * scale / 2;
+        // const ty = -by * scale + container.y + container.height / 2 - bh * scale / 2;
+        // console.log(tx, ty, scale);
+        const translate = [this.props.width / 2 * scale + container.x + container.width / 2 - bw * scale / 2, -by * scale + container.y + container.height / 2 - bh * scale / 2];
+        // const translate = [this.props.width / 2 - scale * bw / 2, this.props.height / 2 - scale * bh / 2];
+        console.log(translate, scale);
+        const zoom = d3.zoom()
+            .scaleExtent([1, 8])
+            .on('zoom', () => {
+                svg.style('stroke-width', 1.5 / d3.event.transform.k + 'px');
+                svg.attr('transform', d3.event.transform);
+            });
+        d3.selectAll('svg').transition()
+            .duration(750)
+            .style('stroke-width', 1.5 / scale + 'px')
+            .call( zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        console.log(zoom.transform);
+    }
     sim(data) {
         this.simulation = d3.forceSimulation(data.nodes)
             .force('charge',
@@ -71,7 +104,6 @@ class UpdatedD3Graph extends React.Component {
             .force('x', d3.forceX(0));
     }
     runSim(data) {
-        console.log(this.simulation);
         this.simulation
             .nodes(data.nodes)
             .on('tick', this.ticked);
@@ -80,21 +112,46 @@ class UpdatedD3Graph extends React.Component {
             .force('link')
             .links(data.links);
 
-        const svg = d3.selectAll('svg');
-        d3.zoom()
-            .on('zoom', () => this.zoomActions(svg));
+        this.linkedByIndex = {};
+        data.links.forEach(d => {
+            this.linkedByIndex[`${d.source.index},${d.target.index}`] = 1;
+        });
     }
+
     setup(data) {
-        const svg = d3.selectAll('svg');
-        this.link = svg.append('g')
+        this.zoom = d3.zoom()
+            .scaleExtent([1, 1000])
+            .on('zoom', () => this.zoomed());
+        d3.selectAll('svg')
+            .append('svg:defs').selectAll('marker')
+            .data([{ id: 'end-arrow', opacity: 1 }, { id: 'end-arrow-fade', opacity: 0.1 }])
+            .enter().append('marker')
+            .attr('id', d => d.id)
+            .attr('viewBox', '0 0 10 10')
+            .attr('refX', 2 + 18)
+            .attr('refY', 5)
+            .attr('markerWidth', 4)
+            .attr('markerHeight', 4)
+            .attr('orient', 'auto')
+            .append('svg:path')
+            .attr('d', 'M0,0 L0,10 L10,5 z')
+            .style('opacity', d => d.opacity)
+            .call(this.zoom);
+
+        this.svg = d3.selectAll('svg')
+            .append('g')
+            .attr('class', 'everything');
+        this.link = this.svg.append('g')
             .attr('class', 'links')
             .selectAll('line')
             .data(data.links)
             .enter()
             .append('line')
-            .attr('stroke', 'black');
+            .attr('class', 'link')
+            .attr('marker-end', 'url(#end-arrow)')
+            .on('mouseout', (d) => this.fade(1, d));
 
-        this.linkT = svg.append('g')
+        this.linkT = this.svg.append('g')
             .selectAll('text')
             .data(data.links)
             .enter()
@@ -103,19 +160,26 @@ class UpdatedD3Graph extends React.Component {
             .attr('fill', 'red')
             .text(d => d.type);
 
-        this.node = svg.append('g')
+        this.node = this.svg.append('g')
             .attr('class', 'nodes')
-            .selectAll('circle')
+            .attr('transform', 'translate(0,0)scale(1,1)')
+            .selectAll('.node')
             .data(data.nodes)
             .enter()
-            .append('circle')
-            .attr('r', 5)
+            .append('g')
+            .attr('class', 'node');
+
+        this.node.append('circle')
+            .attr('r', 18)
+            .on('mouseover', (d) => this.fade(0.1, d))
+            .on('mouseout', (d) => this.fade(1, d))
+            .on('click', (d) => this.clicked(this.node, d))
             .call(d3.drag()
                 .on('start', d=>this.dragstarted(d))
                 .on('drag', d=>this.dragged(d))
                 .on('end', d=>this.dragend(d)));
 
-        this.nodeT = svg.append('g')
+        this.nodeT = this.svg.append('g')
             .selectAll('text')
             .data(data.nodes)
             .enter().append('text')
@@ -123,10 +187,33 @@ class UpdatedD3Graph extends React.Component {
             .attr('dx', d=> d.r)
             .attr('dy', '.35em')
             .text(d => d.label + ' ' + d.name);
+        this.props.zoom === true ?
+            d3.selectAll('svg')
+                .append('rect')
+                .attr('width', this.props.width)
+                .attr('height', this.props.height)
+                .style('fill', 'none')
+                .style('pointer-events', 'all')
+                .call(d3.zoom()
+                    .scaleExtent([1 / 2, 4])
+                    .on('zoom', () => {
+                        console.log('zoom');
+                        return this.zoomActions();
+                    })) : d3.selectAll('rect').remove();
     }
-
+    fade(opacity, d) {
+        const node = d3.selectAll('.node');
+        node.style('stroke-opacity', (o) => this.isConnected(d, o) ? 1 : opacity);
+        node.attr('fill-opacity', (o) => this.isConnected(d, o) ? 1 : opacity);
+        const link = d3.selectAll('.link');
+        link.style('stroke-opacity', o => (o.source === d || o.target === d ? 1 : opacity));
+        link.attr('marker-end', o => (opacity === 1 || o.source === d || o.target === d ? 'url(#end-arrow)' : 'url(#end-arrow-fade)'));
+    }
+    isConnected(a, b) {
+        return this.linkedByIndex[`${a.index},${b.index}`] || this.linkedByIndex[`${b.index},${a.index}`] || a.index === b.index;
+    }
     ticked() {
-        const link = d3.selectAll('line');
+        const link = d3.selectAll('.link');
         link.attr('x1', d => d.source.x)
             .attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x)
@@ -139,19 +226,22 @@ class UpdatedD3Graph extends React.Component {
             .attr('x', d => (d.source.x + d.target.x) / 2 )
             .attr('y', d => (d.source.y + d.target.y) / 2 );
 
-        const node = d3.selectAll('circle');
+        const node = d3.selectAll('.node');
         node
-            .attr('cx', d => d.x)
-            .attr('cy', d => d.y);
+            // .attr('cx', d => d.x)
+            // .attr('cy', d => d.y);
+            .attr('transform', d => `translate(${d.x},${d.y})`);
 
         const nodeT = d3.selectAll('.labels');
         nodeT
             .attr('x', d => d.x)
             .attr('y', d => d.y);
     }
-    zoomActions(g) {
-        g.attr('transform', d3.event.transform);
+    zoomActions() {
+        console.log(this.svg);
+        this.svg.attr('transform', d3.event.transform);
     }
+
     render() {
         return (
             <svg width={this.props.width} height={this.props.height}  />
@@ -172,7 +262,7 @@ UpdatedD3Graph.propTypes = {
     linkDistance: PropTypes.number,
     width: PropTypes.number,
     height: PropTypes.number,
-    version: PropTypes.number,
+    zoom: PropTypes.bool,
 };
 
 export default UpdatedD3Graph;

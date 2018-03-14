@@ -1,7 +1,7 @@
 import React from 'react';
 import UpdatedD3Example from '../containers/LongD3';
-
-
+import { FormGroup, FormControlLabel } from 'material-ui/Form';
+import Switch from 'material-ui/Switch';
 const dataset = {
     'nodes': [
         {
@@ -58,7 +58,7 @@ class Projects extends React.Component {
     constructor(props) {
         super(props);
         this.updateData = this.updateData.bind(this);
-        this.state = {nodes: [], links: [], version: 0};
+        this.state = {nodes: [], links: [], version: 0, zoom: false};
     }
 
     componentWillMount() {
@@ -68,14 +68,29 @@ class Projects extends React.Component {
     updateData() {
         this.setState({nodes: dataset.nodes, links: dataset.links, version: this.state.version + 1});
     }
-
+    handleChange(name, event) {
+        console.log(event.target.checked);
+        this.setState({ [name]: event.target.checked });
+    }
     render() {
         return (
             <div>
+                <FormGroup row>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={this.state.zoom}
+                                onChange={(e) => this.handleChange('zoom', e)}
+                                value="zoom"
+                                color="primary"
+                            />
+                        }
+                        label="Zoom Graph"
+                    />
+                </FormGroup>
                 <UpdatedD3Example {...this.state} />
             </div>
         );
     }
 }
-
 export default Projects;
