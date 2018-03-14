@@ -31,7 +31,6 @@ class UpdatedD3Graph extends React.Component {
     }
 
     componentDidUpdate(nextProps) {
-        console.log(nextProps);
         this.simulation.stop();
         d3.selectAll('defs').remove();
         d3.selectAll('g').remove();
@@ -63,7 +62,36 @@ class UpdatedD3Graph extends React.Component {
         d.fx = d.x;
         d.fy = d.y;
     }
-
+    clicked(d1) {
+        const selectedNode = d3.selectAll('.node')
+            .each( (d) => d1.id === d.id);
+        console.log(selectedNode.node(), this.props.height, this.props.width);
+        const bbox = selectedNode.node().getBBox();
+        const bx = bbox.x;
+        const by = bbox.y;
+        const bw = bbox.width;
+        const bh = bbox.height;
+        const scale = Math.max(1, Math.min(8, 0.9 / Math.max(bx / this.props.width, by / this.props.height)));
+        const svg = d3.selectAll('.everything');
+        const container = svg.node().getBBox();
+        // const tx = -bx * scale + container.x + container.width / 2 - bw * scale / 2;
+        // const ty = -by * scale + container.y + container.height / 2 - bh * scale / 2;
+        // console.log(tx, ty, scale);
+        const translate = [this.props.width / 2 * scale + container.x + container.width / 2 - bw * scale / 2, -by * scale + container.y + container.height / 2 - bh * scale / 2];
+        // const translate = [this.props.width / 2 - scale * bw / 2, this.props.height / 2 - scale * bh / 2];
+        console.log(translate, scale);
+        const zoom = d3.zoom()
+            .scaleExtent([1, 8])
+            .on('zoom', () => {
+                svg.style('stroke-width', 1.5 / d3.event.transform.k + 'px');
+                svg.attr('transform', d3.event.transform);
+            });
+        d3.selectAll('svg').transition()
+            .duration(750)
+            .style('stroke-width', 1.5 / scale + 'px')
+            .call( zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        console.log(zoom.transform);
+    }
     sim(data) {
         this.simulation = d3.forceSimulation(data.nodes)
             .force('charge',
@@ -91,6 +119,9 @@ class UpdatedD3Graph extends React.Component {
     }
 
     setup(data) {
+        this.zoom = d3.zoom()
+            .scaleExtent([1, 1000])
+            .on('zoom', () => this.zoomed());
         d3.selectAll('svg')
             .append('svg:defs').selectAll('marker')
             .data([{ id: 'end-arrow', opacity: 1 }, { id: 'end-arrow-fade', opacity: 0.1 }])
@@ -104,7 +135,8 @@ class UpdatedD3Graph extends React.Component {
             .attr('orient', 'auto')
             .append('svg:path')
             .attr('d', 'M0,0 L0,10 L10,5 z')
-            .style('opacity', d => d.opacity);
+            .style('opacity', d => d.opacity)
+            .call(this.zoom);
 
         this.svg = d3.selectAll('svg')
             .append('g')
@@ -130,6 +162,7 @@ class UpdatedD3Graph extends React.Component {
 
         this.node = this.svg.append('g')
             .attr('class', 'nodes')
+            .attr('transform', 'translate(0,0)scale(1,1)')
             .selectAll('.node')
             .data(data.nodes)
             .enter()
@@ -140,6 +173,7 @@ class UpdatedD3Graph extends React.Component {
             .attr('r', 18)
             .on('mouseover', (d) => this.fade(0.1, d))
             .on('mouseout', (d) => this.fade(1, d))
+            .on('click', (d) => this.clicked(this.node, d))
             .call(d3.drag()
                 .on('start', d=>this.dragstarted(d))
                 .on('drag', d=>this.dragged(d))
@@ -207,6 +241,7 @@ class UpdatedD3Graph extends React.Component {
         console.log(this.svg);
         this.svg.attr('transform', d3.event.transform);
     }
+
     render() {
         return (
             <svg width={this.props.width} height={this.props.height}  />
