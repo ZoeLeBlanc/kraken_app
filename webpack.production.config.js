@@ -13,18 +13,18 @@ module.exports = {
     devServer: {
       contentBase: path.join(__dirname, 'build'),
     },
-    entry: [
+    entry: {
         // Polyfills go here too, like babel-polyfill or whatwg-fetch
-        'babel-polyfill',
-        path.join(__dirname, 'src/index.js')
-    ],
+        main: ['babel-polyfill',
+        path.join(__dirname, 'src/index.js')]
+    },
     resolve: {
       extensions: ['.js', '.jsx']
     },
     // Where you want the output to go
     output: {
         path: path.join(__dirname, '/build/'),
-        filename: '[name]-[hash].js',
+        filename: 'js/[name]-[hash].js',
         publicPath: '/build/'
     },
     module: {
@@ -81,7 +81,7 @@ module.exports = {
         // extracts the css from the js files and puts them on a separate .css file. this is for
         // performance and is used in prod environments. Styles load faster on their own .css
         // file as they dont have to wait for the JS to load.
-        new ExtractTextPlugin('[name]-[hash].min.css'),
+        new ExtractTextPlugin('css/[name]-[hash].min.css'),
         // handles uglifying js
         new UglifyJsPlugin({
           uglifyOptions: {
