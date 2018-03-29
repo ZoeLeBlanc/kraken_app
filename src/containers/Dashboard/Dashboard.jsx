@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import { fetchGraphIfNeeded } from '../../actions/graphActions';
-import D3ForceGraph from '../../components/graphs/D3ForceGraph';
 import compose from 'recompose/compose';
 // import Typography from 'material-ui/Typography';
-import Grid from 'material-ui/Grid';
+// import Grid from 'material-ui/Grid';
 import { withStyles } from 'material-ui/styles';
 
 const styles = theme => ({
@@ -27,31 +26,7 @@ export class Dashboard extends React.Component {
         super(props);
     }
     componentDidMount() {
-        this.props.getGraph();
-        this.state = {zoom: false};
-    }
-    switchChange(name, event) {
-        this.setState({ [name]: event.target.checked });
-    }
-    renderGraph() {
-        const {graph, classes} = this.props;
-        console.log(graph);
-        const g = graph === undefined ? {} : graph;
-        console.log(g.nodes, g.edges);
-        return (
-            <div className={classes.root}>
-                <Grid container spacing={24}>
-                    <Grid item xs={12}>
-                        <D3ForceGraph nodes={g.nodes} links= {g.edges} height={350} width={900}
-                            radius={18}
-                            zoom={this.state.zoom}
-                            switchChange={(name, event) => this.switchChange(name, event)}
-                            classes={classes}
-                        />
-                    </Grid>
-                </Grid>
-            </div>
-        );
+
     }
     render() {
         const { graph } = this.props;

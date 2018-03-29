@@ -5,6 +5,8 @@ import About from './components/pages/About';
 import Projects from './components/Projects';
 // import Test from './components/Test';
 import Dashboard from './containers/Dashboard';
+import FileUpload from './containers/FileUpload';
+
 // import GraphTest from './containers/GraphTest';
 
 
@@ -13,6 +15,7 @@ export default (
         <Route exact path="/" component={Home} />
         <Route path="/about" component={About} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/upload" component={FileUpload} />
         <Route path="/projects" component={Projects} />
     </Switch>
 );

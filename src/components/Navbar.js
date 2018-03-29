@@ -22,7 +22,8 @@ const links = [
     {'people': '/people'},
     {'about': '/about'},
     {'dashboard': '/dashboard'},
-    {'projects': '/projects'}
+    {'projects': '/projects'},
+    {'upload': '/upload'}
 ];
 
 
