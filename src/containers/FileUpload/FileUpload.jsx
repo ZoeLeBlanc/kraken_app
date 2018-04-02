@@ -16,6 +16,7 @@ import HTML5Backend, { NativeTypes } from 'react-dnd-html5-backend';
 import TargetBox from './TargetBox';
 import FileList from './FileList';
 import { withStyles } from 'material-ui/styles';
+import Icon from 'material-ui/Icon';
 
 const styles = theme => ({
     root: theme.mixins.gutters({
@@ -73,7 +74,9 @@ export class FileUpload extends React.Component {
         const { classes } = this.props;
         return (
             <div>
-                <Button onClick={this.handleClickOpen}>Open form dialog</Button>
+                <Button variant="fab" color="secondary" aria-label="file_upload" className={classes.button} onClick={this.handleClickOpen}>
+                    <Icon>file_upload</Icon>
+                </Button>
                 <Dialog
                     open={this.state.open}
                     onClose={this.handleClose}

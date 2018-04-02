@@ -13,57 +13,40 @@ import { DragDropContext, DragDropContextProvider } from 'react-dnd';
 import HTML5Backend, { NativeTypes } from 'react-dnd-html5-backend';
 import TargetBox from './TargetBox';
 import FileList from './FileList';
-
+import Icon from 'material-ui/Icon';
+const style = {
+    margin: 0,
+    top: 'auto',
+    right: 20,
+    bottom: 20,
+    left: 'auto',
+    position: 'fixed',
+};
 export class FileUpload extends React.Component {
     constructor(props) {
         super(props);
-        this.handleFileDrop = this.handleFileDrop.bind(this);
-        this.handleClickOpen = this.handleClickOpen.bind(this);
-        this.handleClose = this.handleClose.bind(this);
-        this.onChange = this.onChange.bind(this);
-        this.state = {
-            open: false,
-            droppedFiles: [],
-        };
     }
     componentDidMount() {
     }
 
-    handleClickOpen() {
-        this.setState({ open: true });
-    }
-
-    handleClose() {
-        this.setState({ open: false });
-    }
-    handleFileDrop(item, monitor) {
-  		  if (monitor) {
-  			    const files = monitor.getItem().files;
-            const droppedFiles = files.filter(file => file.type === 'text/csv');
-  			    this.setState({ droppedFiles });
-  		}
-  	}
-    onChange(e) {
-        const droppedFiles = Object.entries(e.target.files).map( f => f[1]);
-        this.setState({ droppedFiles });
-    }
     render() {
         const { FILE } = NativeTypes;
-        const { droppedFiles } = this.state;
-        const { classes } = this.props;
+        const { classes, handleClickOpen, handleClose, handleFileDrop, onChange, droppedFiles, open, onSave } = this.props;
         return (
             <div>
-                <Button onClick={this.handleClickOpen}>Open form dialog</Button>
+                <Button style={style} variant="fab" color="secondary" aria-label="file_upload" onClick={() => handleClickOpen()}>
+                    <Icon>file_upload</Icon>
+                </Button>
                 <Dialog
-                    open={this.state.open}
-                    onClose={this.handleClose}
+                    open={open}
+                    onClose={() => handleClose()}
                     aria-labelledby="form-dialog-title"
                 >
                     <DialogTitle id="simple-dialog-title">Upload CSV </DialogTitle>
                     <DialogContent>
                         <DragDropContextProvider backend={HTML5Backend}>
       			                <div>
-      					                <TargetBox accepts={[FILE]} onDrop={this.handleFileDrop} />
+      					                <TargetBox accepts={[FILE]} onDrop={() =>handleFileDrop()} />
       					                <FileList files={droppedFiles} />
       				              </div>
       			            </DragDropContextProvider>
@@ -73,7 +56,7 @@ export class FileUpload extends React.Component {
                             id="raised-button-file"
                             multiple
                             type="file"
-                            onChange={this.onChange}
+                            onChange={(e) => onChange(e)}
                         />
                         <label htmlFor="raised-button-file">
                             <Button variant="raised"  component="span" className={classes.button}>
@@ -82,11 +65,11 @@ export class FileUpload extends React.Component {
                         </label>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={this.handleClose} color="primary">
+                        <Button onClick={() =>handleClose()} color="primary">
                         Cancel
                         </Button>
-                        <Button onClick={this.handleClose} color="primary">
-                        Subscribe
+                        <Button onClick={() =>{handleClose(); onSave();}} color="primary">
+                        Save
                         </Button>
                     </DialogActions>
                 </Dialog>
@@ -99,6 +82,11 @@ FileUpload.propTypes = {
     files: PropTypes.arrayOf(PropTypes.object),
     handleClose: PropTypes.func,
     handleClickOpen: PropTypes.func,
+    onChange: PropTypes.func,
+    handleFileDrop: PropTypes.func,
+    droppedFiles: PropTypes.arrayOf(PropTypes.object),
+    open: PropTypes.bool,
+    onSave: PropTypes.func,
 };
 
 export default DragDropContext(HTML5Backend)(FileUpload);

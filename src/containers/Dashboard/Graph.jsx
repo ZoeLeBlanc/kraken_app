@@ -8,6 +8,8 @@ import compose from 'recompose/compose';
 import Grid from 'material-ui/Grid';
 import { withStyles } from 'material-ui/styles';
 
+// import FileUpload from '../../components/FileUpload';
+
 const styles = theme => ({
     root: theme.mixins.gutters({
         paddingTop: 16,
