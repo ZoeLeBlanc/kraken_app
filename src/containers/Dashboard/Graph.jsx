@@ -8,6 +8,8 @@ import compose from 'recompose/compose';
 import Grid from 'material-ui/Grid';
 import { withStyles } from 'material-ui/styles';
 
+// import FileUpload from '../../components/FileUpload';
+
 const styles = theme => ({
     root: theme.mixins.gutters({
         paddingTop: 16,
@@ -22,7 +24,7 @@ const styles = theme => ({
         color: theme.palette.text.secondary,
     },
 });
-export class DashboardGraph extends React.Component {
+export class Graph extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -35,7 +37,9 @@ export class DashboardGraph extends React.Component {
     }
     renderGraph() {
         const {graph, classes} = this.props;
+        console.log(graph);
         const g = graph === undefined ? {} : graph;
+        console.log(g.nodes, g.edges);
         return (
             <div className={classes.root}>
                 <Grid container spacing={24}>
@@ -64,7 +68,7 @@ export class DashboardGraph extends React.Component {
         );
     }
 }
-DashboardGraph.propTypes = {
+Graph.propTypes = {
     graph: PropTypes.object,
     getGraph: PropTypes.func,
     isFetching: PropTypes.bool,
@@ -92,6 +96,6 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 export default compose(
-    withStyles(styles, { name: 'DashboardGraph' }),
+    withStyles(styles, { name: 'Graph' }),
     connect(mapStateToProps, mapDispatchToProps)
-)(DashboardGraph);
+)(Graph);

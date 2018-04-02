@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import { fetchGraphIfNeeded } from '../../actions/graphActions';
-import D3ForceGraph from '../../components/graphs/D3ForceGraph';
+import { saveCSV } from './DashboardActions';
 import compose from 'recompose/compose';
-// import Typography from 'material-ui/Typography';
-import Grid from 'material-ui/Grid';
+import Graph from './Graph';
+import FileUpload from '../../components/FileUpload';
+// import Select from 'material-ui/Select';
 import { withStyles } from 'material-ui/styles';
 
 const styles = theme => ({
@@ -21,68 +22,85 @@ const styles = theme => ({
         textAlign: 'center',
         color: theme.palette.text.secondary,
     },
+    input: {
+        display: 'none',
+    },
 });
 export class Dashboard extends React.Component {
     constructor(props) {
         super(props);
+        this.handleFileDrop = this.handleFileDrop.bind(this);
+        this.handleClickOpen = this.handleClickOpen.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.state = {
+            open: false,
+            droppedFiles: [],
+        };
     }
     componentDidMount() {
-        this.props.getGraph();
-        this.state = {zoom: false};
+
     }
-    switchChange(name, event) {
-        this.setState({ [name]: event.target.checked });
+    handleClickOpen() {
+        this.setState({ open: true });
     }
-    renderGraph() {
-        const {graph, classes} = this.props;
-        console.log(graph);
-        const g = graph === undefined ? {} : graph;
-        console.log(g.nodes, g.edges);
-        return (
-            <div className={classes.root}>
-                <Grid container spacing={24}>
-                    <Grid item xs={12}>
-                        <D3ForceGraph nodes={g.nodes} links= {g.edges} height={350} width={900}
-                            radius={18}
-                            zoom={this.state.zoom}
-                            switchChange={(name, event) => this.switchChange(name, event)}
-                            classes={classes}
-                        />
-                    </Grid>
-                </Grid>
-            </div>
-        );
+
+    handleClose() {
+        this.setState({ open: false });
+    }
+    handleFileDrop(item, monitor) {
+  		  if (monitor) {
+  			    const files = monitor.getItem().files;
+            const droppedFiles = files.filter(file => file.type === 'text/csv');
+  			    this.setState({ droppedFiles });
+  		}
+  	}
+    onChange(e) {
+        console.log(e.target.files);
+        const droppedFiles = Object.entries(e.target.files).map( f => f[1]);
+        this.setState({ droppedFiles });
+        console.log(droppedFiles);
+    }
+    onSave() {
+        console.log(this.state.droppedFiles);
+        this.state.droppedFiles.map( f => this.props.saveCSVs(f));
+    }
+    renderSelects() {
+        console.log(this.props.headers);
     }
     render() {
-        const { graph } = this.props;
-        console.log(graph.length);
+        const { classes, headers } = this.props;
+        const allHeaders = headers.headers;
         return (
             <div>
-                { Object.keys(graph).length === 0 ?
-                    <h2>Loading</h2> :
-                    this.renderGraph()
+                { allHeaders.length === 0 ? null : this.renderSelects()
                 }
+                <Graph/>
+                <FileUpload handleClose={this.handleClose} open={this.state.open} droppedFiles={this.state.droppedFiles} handleClickOpen={this.handleClickOpen}
+                    classes={classes}
+                    onChange={(e)=>this.onChange(e)}
+                    onSave={() =>this.onSave()}/>
             </div>
         );
     }
 }
 Dashboard.propTypes = {
-    graph: PropTypes.object,
-    getGraph: PropTypes.func,
-    isFetching: PropTypes.bool,
+    headers: PropTypes.object,
+    saveCSVs: PropTypes.func,
+    isSaving: PropTypes.bool,
     classes: PropTypes.object,
 };
 
 const mapStateToProps = (state) => {
-    const { graphReducer } = state;
+    const { dashboardReducer } = state;
     const {
-        isFetching,
-        graph
-    } = graphReducer;
+        isSaving,
+        headers
+    } = dashboardReducer;
 
     return {
-        graph,
-        isFetching,
+        headers,
+        isSaving,
     };
 };
 
@@ -90,6 +108,9 @@ const mapDispatchToProps = (dispatch) => {
     return {
         getGraph: () => {
             dispatch(fetchGraphIfNeeded());
+        },
+        saveCSVs: (file) =>{
+            dispatch(saveCSV(file));
         }
     };
 };

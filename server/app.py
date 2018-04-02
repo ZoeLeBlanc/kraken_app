@@ -4,6 +4,8 @@ from flask.json import JSONEncoder
 from flask_cors import CORS
 from .models import Person, Graph
 from neo4j.v1 import GraphDatabase, basic_auth
+import pandas as pd
+import networkx as nx
 # from flask_restful import Resource, Api
 class CustomJSONEncoder(JSONEncoder):
 
@@ -109,6 +111,21 @@ def serialize_person(person):
 ##
 # View route
 ##
+def create_graph(pd_df):
+    df2 = pd.concat([pd_df, pd_df.T]).fillna(0)
+    df2 = df2.reindex(df2.columns)
+    graph = nx.from_numpy_matrix(df2.values)
+
+@app.route('/api/load_csv', methods=['POST'])
+def load_csv():
+    print('request', request.files, request.__dict__, request.form)
+    file = request.files['file']
+    print(file.filename)
+    pd_df = pd.read_csv(file)
+    print(pd_df.columns.values.tolist())
+    response = {'headers': pd_df.columns.values.tolist()}
+    return jsonify(response)
+
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

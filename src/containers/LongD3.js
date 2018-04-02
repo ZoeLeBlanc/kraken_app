@@ -64,33 +64,36 @@ class UpdatedD3Graph extends React.Component {
     }
     clicked(d1) {
         const selectedNode = d3.selectAll('.node')
-            .each( (d) => d1.id === d.id);
-        console.log(selectedNode.node(), this.props.height, this.props.width);
-        const bbox = selectedNode.node().getBBox();
-        const bx = bbox.x;
-        const by = bbox.y;
-        const bw = bbox.width;
-        const bh = bbox.height;
-        const scale = Math.max(1, Math.min(8, 0.9 / Math.max(bx / this.props.width, by / this.props.height)));
-        const svg = d3.selectAll('.everything');
-        const container = svg.node().getBBox();
+            .filter( (d) => d === d1);
+        console.log(selectedNode, d1.x, d1.y, this.props.height, this.props.width);
+        // const active = d3.select(selectedNode).classed('active', true);
+        const kw = (this.props.width - this.props.height / 10) / 170;
+        const kh = (this.props.height - this.props.height / 10) / 70;
+        const k = d3.min([kw, kh]);
+        const x = this.props.width / 2 - (d1.x / 2 ) * k;
+        const y = this.props.height / 2 - (d1.y / 2) * k;
+        console.log(k, kw, kh, x, y);
+        const scale = Math.max(1, Math.min(8, 0.9 / Math.max(d1.x / this.props.width, d1.y / this.props.height)));
+        console.log(scale);
+        // const svg = d3.selectAll('.everything');
+        // const container = svg.node().getBBox();
         // const tx = -bx * scale + container.x + container.width / 2 - bw * scale / 2;
         // const ty = -by * scale + container.y + container.height / 2 - bh * scale / 2;
         // console.log(tx, ty, scale);
-        const translate = [this.props.width / 2 * scale + container.x + container.width / 2 - bw * scale / 2, -by * scale + container.y + container.height / 2 - bh * scale / 2];
-        // const translate = [this.props.width / 2 - scale * bw / 2, this.props.height / 2 - scale * bh / 2];
-        console.log(translate, scale);
-        const zoom = d3.zoom()
-            .scaleExtent([1, 8])
-            .on('zoom', () => {
-                svg.style('stroke-width', 1.5 / d3.event.transform.k + 'px');
-                svg.attr('transform', d3.event.transform);
-            });
-        d3.selectAll('svg').transition()
-            .duration(750)
-            .style('stroke-width', 1.5 / scale + 'px')
-            .call( zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
-        console.log(zoom.transform);
+        // const translate = [this.props.width / 2 * scale + container.x + container.width / 2 - bw * scale / 2, -by * scale + container.y + container.height / 2 - bh * scale / 2];
+        // // const translate = [this.props.width / 2 - scale * bw / 2, this.props.height / 2 - scale * bh / 2];
+        // console.log(translate, scale);
+        // const zoom = d3.zoom()
+        //     .scaleExtent([1, 8])
+        //     .on('zoom', () => {
+        //         svg.style('stroke-width', 1.5 / d3.event.transform.k + 'px');
+        //         svg.attr('transform', d3.event.transform);
+        //     });
+        // d3.selectAll('svg').transition()
+        //     .duration(750)
+        //     .style('stroke-width', 1.5 / scale + 'px')
+        //     .call( zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        // console.log(zoom.transform);
     }
     sim(data) {
         this.simulation = d3.forceSimulation(data.nodes)
@@ -173,7 +176,7 @@ class UpdatedD3Graph extends React.Component {
             .attr('r', 18)
             .on('mouseover', (d) => this.fade(0.1, d))
             .on('mouseout', (d) => this.fade(1, d))
-            .on('click', (d) => this.clicked(this.node, d))
+            .on('click', (d) => this.clicked(d))
             .call(d3.drag()
                 .on('start', d=>this.dragstarted(d))
                 .on('drag', d=>this.dragged(d))
