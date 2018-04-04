@@ -97,5 +97,81 @@ const getGraph = (dispatch) => {
 export const fetchGraphIfNeeded = () => {
     return (dispatch) => {
         return getGraph(dispatch);
+};
+
+export const getCols = (file) => {
+    return (dispatch) => {
+        dispatch(gettingCold());
+        const formData = new FormData();
+
+        formData.append('file', file);
+        formData.forEach((value, key) => {
+            console.log(key + ' ' + value);
+        });
+        return fetch('http://localhost:7082/api/network/get_columns', {
+            method: 'POST',
+            body: formData
+        }).then((response) => {
+            response.json()
+                .catch(err => {
+                    return err;
+                })
+                .then(json => {
+                    dispatch(loadCols(json));
+                });
+        });
+    };
+};
+
+export const createNetworkEdges = (nodes, edges, index) => {
+    return (dispatch) => {
+        dispatch(creatingNetwork());
+        const formData = new FormData();
+
+        formData.append('file', nodes);
+        formData.append('file', edges);
+        formData.append('index', index);
+        formData.forEach((value, key) => {
+            console.log(key + ' ' + value);
+        });
+        return fetch('http://localhost:7082/api/network/create_network_nodes_edges', {
+            method: 'POST',
+            body: formData
+        }).then((response) => {
+            response.json()
+                .catch(err => {
+                    return err;
+                })
+                .then(json => {
+                    dispatch(createNetwork(json));
+                });
+        });
+    };
+};
+
+
+export const createNetworkNodes = (nodes, cols, index) => {
+    return (dispatch) => {
+        dispatch(creatingNetwork());
+        const formData = new FormData();
+
+        formData.append('file', nodes);
+        formData.append('cols', cols);
+        formData.append('index', index);
+        formData.forEach((value, key) => {
+            console.log(key + ' ' + value);
+        });
+        return fetch('http://localhost:7082/api/network/create_network_nodes', {
+            method: 'POST',
+            body: formData
+        }).then((response) => {
+            response.json()
+                .catch(err => {
+                    return err;
+                })
+                .then(json => {
+                    dispatch(createNetwork(json));
+                });
+        });
     };
 };
