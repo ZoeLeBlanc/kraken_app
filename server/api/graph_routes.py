@@ -1,8 +1,6 @@
 from flask import Blueprint, jsonify, request, g
 import json
-import pandas as pd
-import networkx as nx
-from networkx.readwrite import json_graph
+from database import get_db
 
 graph_routes = Blueprint('graph_routes', __name__)
 
