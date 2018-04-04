@@ -24,8 +24,11 @@ CORS(app)
 driver = GraphDatabase.driver("bolt://127.0.0.1:7687", auth=("neo4j", "asdf1234"))
 
 from .api.network_routes import network_routes
+from .api.graph_routes import graph_routes
 
 app.register_blueprint(network_routes)
+app.register_blueprint(graph_routes)
+
 def get_db():
     if not hasattr(g, 'neo4j_db'):
         g.neo4j_db = driver.session()
@@ -40,10 +43,6 @@ def close_db(error):
 ##
 # View route
 ##
-def create_graph(pd_df):
-    df2 = pd.concat([pd_df, pd_df.T]).fillna(0)
-    df2 = df2.reindex(df2.columns)
-    graph = nx.from_numpy_matrix(df2.values)
 
 @app.route('/api/load_csv', methods=['POST'])
 def load_csv():

@@ -6,7 +6,7 @@ from networkx.readwrite import json_graph
 
 graph_routes = Blueprint('graph_routes', __name__)
 
-@app.route('/api/get_graph')
+@graph_routes.route('/api/graph/get_graph')
 def get_graph():
     print('api called')
     db = get_db()
@@ -63,7 +63,7 @@ def get_graph():
 
         return jsonify({'nodes':nodesMap, 'edges':edgesMap})
 
-@app.route('/api/get_people')
+@graph_rotes.route('/api/get_people')
 def get_people():
     print('api called')
     db = get_db()

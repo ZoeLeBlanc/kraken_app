@@ -17,8 +17,8 @@ def get_csv_headers(request):
 @network_routes.route('/api/network/create_network_nodes_edges')
 def create_network_nodes_edges(request):
     files = request.files['file']
-    nodes_file = [file for file in files if 'nodes' in file.file_name ]
-    edges_file = [file for file in files if 'edges' in file.file_name ]
+    nodes_file = [f for f in files if 'nodes' in f.file_name ]
+    edges_file = [f for f in files if 'edges' in f.file_name ]
     index = request.data['index']
     nodes = pd.read_csv(nodes_file)
     edges = pd.read_csv(edges_file)
@@ -43,10 +43,11 @@ def create_network_nodes_edges(request):
     return jsonify({ 'network': data }), 200
 
 @network_routes.route('/api/network/create_network_nodes')
-    file = request.files['file']
+def create_network_nodes(request):
+    f = request.files['file']
     cols = request.data['cols']
     index = request.data['index']
-    df = pd.read_csv(file)
+    df = pd.read_csv(f)
     df.fillna(0, inplace=True)
     G=nx.from_pandas_edgelist(df, cols[0], cols[1])
     data = df.set_index(index).to_dict('index').items()
