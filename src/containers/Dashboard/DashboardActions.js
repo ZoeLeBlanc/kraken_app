@@ -101,7 +101,7 @@ export const fetchGraphIfNeeded = () => {
 
 export const getCols = (file) => {
     return (dispatch) => {
-        dispatch(gettingCold());
+        dispatch(gettingCols());
         const formData = new FormData();
 
         formData.append('file', file);
