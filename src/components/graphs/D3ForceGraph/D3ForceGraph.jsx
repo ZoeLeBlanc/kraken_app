@@ -14,7 +14,6 @@ import '../../../assets/styles/App.css';
 export default class D3ForceGraph extends React.Component {
     constructor(props) {
         super(props);
-        console.log(this.props.radius);
     }
 
     componentDidMount() {
@@ -107,7 +106,6 @@ export default class D3ForceGraph extends React.Component {
         const node = d3.selectAll('.node');
         node
             .attr('transform', d => {
-                console.log(data.radius);
                 d.x = Math.max(data.radius, Math.min(data.width - data.radius, d.x));
                 d.y = Math.max(data.radius, Math.min(data.height - data.radius, d.y));
                 return `translate(${d.x},${d.y})`;

@@ -3,7 +3,7 @@ import { LOAD_CSV_OPTIONS, SAVING_CSV, SELECTED_NODES, SELECTED_EDGES, LOAD_FILE
 const dashboardReducer = (state = {
     isSaving: false,
     headers: {},
-    nodes: [],
+    nodes: {},
     edges: [],
     nodeColumns: [],
     uploadedFiles: []
@@ -33,7 +33,7 @@ const dashboardReducer = (state = {
         case LOAD_FILES:
             return {
                 ...state,
-                uploadedFiles: [...state.uploadedFiles, ...action.uploadedFiles]
+                uploadedFiles: [ ...state.uploadedFiles, action.uploadedFiles]
             };
         default:
             return state;

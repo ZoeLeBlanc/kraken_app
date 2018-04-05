@@ -8,7 +8,9 @@ import Graph from './Graph';
 import FileUpload from '../../components/FileUpload';
 // import Select from 'material-ui/Select';
 import { withStyles } from 'material-ui/styles';
+import SelectItem from '../../components/SelectItem';
 
+console.log(SelectItem);
 const styles = theme => ({
     root: theme.mixins.gutters({
         paddingTop: 16,
@@ -60,12 +62,26 @@ export class Dashboard extends React.Component {
         this.setState({ droppedFiles });
     }
     onSave() {
-        this.state.droppedFiles.map( f => this.props.saveCSVs(f));
+        console.log(this.state.droppedFiles);
+        this.state.droppedFiles.map((f)=>{
+            const reader = new FileReader();
+            reader.readAsDataURL(f);
+            reader.onload = () => {
+                const finalFile = {'file_url': reader.result, 'filename': f.name, 'filetype': f.type};
+                return this.props.saveCSVs(finalFile);
+            };
+        });
     }
     render() {
-        const { classes } = this.props;
+        const { classes, uploadedFiles, nodes } = this.props;
         return (
             <div>
+                {uploadedFiles.length > 0 ? <SelectItem
+                    items={uploadedFiles}
+                    onChange={this.selectChange}
+                    value={nodes}
+                    classes={classes}
+                /> : null}
                 <Graph/>
                 <FileUpload handleClose={this.handleClose} open={this.state.open} droppedFiles={this.state.droppedFiles} handleClickOpen={this.handleClickOpen}
                     classes={classes}
@@ -78,16 +94,18 @@ export class Dashboard extends React.Component {
 Dashboard.propTypes = {
     saveCSVs: PropTypes.func,
     classes: PropTypes.object,
+    uploadedFiles: PropTypes.array,
+    nodes: PropTypes.object,
 };
 
 const mapStateToProps = (state) => {
     const { dashboardReducer } = state;
     const {
-        headers
+        uploadedFiles
     } = dashboardReducer;
 
     return {
-        headers,
+        uploadedFiles
     };
 };
 
