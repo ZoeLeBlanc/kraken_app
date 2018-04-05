@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, g
 import json
-from database import get_db
+from ..app import get_db
+from ..models import Person, Graph
 
 graph_routes = Blueprint('graph_routes', __name__)
 
@@ -61,7 +62,7 @@ def get_graph():
 
         return jsonify({'nodes':nodesMap, 'edges':edgesMap})
 
-@graph_rotes.route('/api/get_people')
+@graph_routes.route('/api/graph/get_people')
 def get_people():
     print('api called')
     db = get_db()

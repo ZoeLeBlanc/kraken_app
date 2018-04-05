@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
-import { fetchGraphIfNeeded } from '../../actions/graphActions';
+import { getGraph } from './DashboardActions';
 import D3ForceGraph from '../../components/graphs/D3ForceGraph';
 import compose from 'recompose/compose';
-// import Typography from 'material-ui/Typography';
 import Grid from 'material-ui/Grid';
 import { withStyles } from 'material-ui/styles';
 
-// import FileUpload from '../../components/FileUpload';
 
 const styles = theme => ({
     root: theme.mixins.gutters({
@@ -91,7 +89,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         getGraph: () => {
-            dispatch(fetchGraphIfNeeded());
+            dispatch(getGraph());
         }
     };
 };

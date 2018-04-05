@@ -2,7 +2,6 @@
 from flask import Flask, g, request, jsonify, send_from_directory
 from flask.json import JSONEncoder
 from flask_cors import CORS
-from .models import Person, Graph
 from neo4j.v1 import GraphDatabase, basic_auth
 
 # from flask_restful import Resource, Api
@@ -19,6 +18,18 @@ class CustomJSONEncoder(JSONEncoder):
 app = Flask(__name__, static_folder='../build')
 app.json_encoder = CustomJSONEncoder
 CORS(app)
+
+driver = GraphDatabase.driver("bolt://127.0.0.1:7687", auth=("neo4j", "asdf1234"))
+
+def get_db():
+    if not hasattr(g, 'neo4j_db'):
+        g.neo4j_db = driver.session()
+    return g.neo4j_db
+
+@app.teardown_appcontext
+def close_db(error):
+    if hasattr(g, 'neo4j_db'):
+        g.neo4j_db.close()
 
 from .api.network_routes import network_routes
 from .api.graph_routes import graph_routes

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import { fetchGraphIfNeeded } from '../../actions/graphActions';
-import { saveCSV } from './DashboardActions';
+import { loadFiles } from './DashboardActions';
 import compose from 'recompose/compose';
 import Graph from './Graph';
 import FileUpload from '../../components/FileUpload';
@@ -56,25 +56,16 @@ export class Dashboard extends React.Component {
   		}
   	}
     onChange(e) {
-        console.log(e.target.files);
         const droppedFiles = Object.entries(e.target.files).map( f => f[1]);
         this.setState({ droppedFiles });
-        console.log(droppedFiles);
     }
     onSave() {
-        console.log(this.state.droppedFiles);
         this.state.droppedFiles.map( f => this.props.saveCSVs(f));
     }
-    renderSelects() {
-        console.log(this.props.headers);
-    }
     render() {
-        const { classes, headers } = this.props;
-        const allHeaders = headers.headers;
+        const { classes } = this.props;
         return (
             <div>
-                { allHeaders.length === 0 ? null : this.renderSelects()
-                }
                 <Graph/>
                 <FileUpload handleClose={this.handleClose} open={this.state.open} droppedFiles={this.state.droppedFiles} handleClickOpen={this.handleClickOpen}
                     classes={classes}
@@ -85,22 +76,18 @@ export class Dashboard extends React.Component {
     }
 }
 Dashboard.propTypes = {
-    headers: PropTypes.object,
     saveCSVs: PropTypes.func,
-    isSaving: PropTypes.bool,
     classes: PropTypes.object,
 };
 
 const mapStateToProps = (state) => {
     const { dashboardReducer } = state;
     const {
-        isSaving,
         headers
     } = dashboardReducer;
 
     return {
         headers,
-        isSaving,
     };
 };
 
@@ -110,7 +97,7 @@ const mapDispatchToProps = (dispatch) => {
             dispatch(fetchGraphIfNeeded());
         },
         saveCSVs: (file) =>{
-            dispatch(saveCSV(file));
+            dispatch(loadFiles(file));
         }
     };
 };

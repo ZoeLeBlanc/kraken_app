@@ -1,8 +1,12 @@
-import { LOAD_CSV_OPTIONS, SAVING_CSV} from './DashboardActions';
+import { LOAD_CSV_OPTIONS, SAVING_CSV, SELECTED_NODES, SELECTED_EDGES, LOAD_FILES } from './DashboardActions';
 
 const dashboardReducer = (state = {
     isSaving: false,
-    csv: {}
+    headers: {},
+    nodes: [],
+    edges: [],
+    nodeColumns: [],
+    uploadedFiles: []
 }, action) => {
     switch (action.type) {
         case SAVING_CSV:
@@ -14,7 +18,22 @@ const dashboardReducer = (state = {
             return {
                 ...state,
                 isSaving: true,
-                csv: action.csv,
+                headers: action.headers,
+            };
+        case SELECTED_NODES:
+            return {
+                ...state,
+                nodes: action.nodes
+            };
+        case SELECTED_EDGES:
+            return {
+                ...state,
+                edges: action.edges
+            };
+        case LOAD_FILES:
+            return {
+                ...state,
+                uploadedFiles: [...state.uploadedFiles, ...action.uploadedFiles]
             };
         default:
             return state;
