@@ -3,7 +3,8 @@
   "env": {
     "browser": true,
     "node": true,
-    "mocha": true
+    "mocha": true,
+    "es6": true,
   },
   "globals": {
     "expect": true,
@@ -11,7 +12,7 @@
     "__DEV__": true
   },
   "parserOptions": {
-    "ecmaVersion": 6,
+    "ecmaVersion": 2017,
     "ecmaFeatures": {
       "arrowFunctions": true,
       "blockBindings": true,

@@ -9,35 +9,34 @@ export default class SelectItem extends React.Component {
     constructor(props) {
         super(props);
     }
-    componentDidMount() {
-    }
-
     render() {
-        const { classes, value, onChange, items } = this.props;
+        const { classes, value, onChange, items, title, helperText} = this.props;
         return (
             <FormControl className={classes.formControl}>
-                <InputLabel htmlFor="age-helper">Age</InputLabel>
+                <InputLabel htmlFor="{title}">{title}</InputLabel>
                 <Select
                     value={value}
                     onChange={onChange}
-                    input={<Input name="age" id="age-helper" />}
+                    input={<Input name="{title}" id="{title}" />}
                 >
                     <MenuItem value="">
                         <em>None</em>
                     </MenuItem>
-                    {   items.map( i =>
-                        <MenuItem value={i.filename}>i.filename</MenuItem>
+                    {   items.map( (i, k) =>
+                        <MenuItem key={k}  value={i}>{i}</MenuItem>
                     )
                     }
                 </Select>
-                <FormHelperText>Some important helper text</FormHelperText>
+                <FormHelperText>{helperText}</FormHelperText>
             </FormControl>
         );
     }
 }
 SelectItem.propTypes = {
     classes: PropTypes.object,
-    items: PropTypes.arrayOf(PropTypes.object),
-    value: PropTypes.object,
+    items: PropTypes.array,
+    value: PropTypes.string,
     onChange: PropTypes.func,
+    title: PropTypes.string,
+    helperText: PropTypes.string,
 };

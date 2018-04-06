@@ -6,11 +6,14 @@ from networkx.readwrite import json_graph
 
 network_routes = Blueprint('network_routes', __name__)
 
-@network_routes.route('/api/network/get_csv_headers')
-def get_csv_headers(request):
+@network_routes.route('/api/network/get_csv_headers', methods=['POST'])
+def get_csv_headers():
+    print(request.files, request)
     file = request.files['file']
+    print(file)
     df = pd.read_csv(file)
     cols = df.columns.values.tolist()
+    print(cols)
     return jsonify({ 'cols': cols }), 200
 
 

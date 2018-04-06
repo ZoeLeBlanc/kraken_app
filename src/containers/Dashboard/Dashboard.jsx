@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
-import { fetchGraphIfNeeded } from '../../actions/graphActions';
-import { loadFiles } from './DashboardActions';
+// import { fetchGraphIfNeeded } from '../../actions/graphActions';
+import { loadFiles, selectedNodes, getCols } from './DashboardActions';
 import compose from 'recompose/compose';
 import Graph from './Graph';
 import FileUpload from '../../components/FileUpload';
@@ -10,7 +10,6 @@ import FileUpload from '../../components/FileUpload';
 import { withStyles } from 'material-ui/styles';
 import SelectItem from '../../components/SelectItem';
 
-console.log(SelectItem);
 const styles = theme => ({
     root: theme.mixins.gutters({
         paddingTop: 16,
@@ -60,6 +59,7 @@ export class Dashboard extends React.Component {
     onChange(e) {
         const droppedFiles = Object.entries(e.target.files).map( f => f[1]);
         this.setState({ droppedFiles });
+        console.log('nodes', this.props.nodes);
     }
     onSave() {
         console.log(this.state.droppedFiles);
@@ -72,15 +72,35 @@ export class Dashboard extends React.Component {
             };
         });
     }
+    selectChange(e) {
+        console.log(e);
+        const file = this.props.uploadedFiles.filter( f => f.filename === e.target.value);
+        file[0].selectedNodes = true;
+        console.log(file);
+        this.props.selectNodes(file[0].filename);
+        const test = this.props.getCols(file);
+        console.log(test);
+    }
     render() {
-        const { classes, uploadedFiles, nodes } = this.props;
+        const { classes, uploadedFiles, nodes, columns, col1 } = this.props;
+        console.log(columns.length);
         return (
             <div>
                 {uploadedFiles.length > 0 ? <SelectItem
-                    items={uploadedFiles}
-                    onChange={this.selectChange}
+                    items={uploadedFiles.map(i => i.filename)}
+                    onChange={(e)=>this.selectChange(e)}
                     value={nodes}
                     classes={classes}
+                    title={'Select Nodes'}
+                    helperText={'Select a file to be the nodes values in the network.'}
+                /> : null}
+                {columns.length > 0 ? <SelectItem
+                    items={columns}
+                    onChange={(e)=>this.selectChange(e)}
+                    value={col1}
+                    classes={classes}
+                    title={'Select Column'}
+                    helperText={'Select a column to use in the network.'}
                 /> : null}
                 <Graph/>
                 <FileUpload handleClose={this.handleClose} open={this.state.open} droppedFiles={this.state.droppedFiles} handleClickOpen={this.handleClickOpen}
@@ -93,29 +113,42 @@ export class Dashboard extends React.Component {
 }
 Dashboard.propTypes = {
     saveCSVs: PropTypes.func,
+    getCols: PropTypes.func,
+    selectNodes: PropTypes.func,
     classes: PropTypes.object,
     uploadedFiles: PropTypes.array,
-    nodes: PropTypes.object,
+    nodes: PropTypes.string,
+    columns: PropTypes.array,
+    col1: PropTypes.string,
 };
 
 const mapStateToProps = (state) => {
     const { dashboardReducer } = state;
     const {
-        uploadedFiles
+        uploadedFiles,
+        nodes,
+        columns,
+        col1,
     } = dashboardReducer;
 
     return {
-        uploadedFiles
+        uploadedFiles,
+        nodes,
+        columns,
+        col1
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        getGraph: () => {
-            dispatch(fetchGraphIfNeeded());
+        selectNodes: (nodes) => {
+            dispatch(selectedNodes(nodes));
         },
         saveCSVs: (file) =>{
             dispatch(loadFiles(file));
+        },
+        getCols: (file) =>{
+            dispatch(getCols(file));
         }
     };
 };
