@@ -36,7 +36,7 @@ export const loadCols = (json) => ({
     cols: json
 });
 
-export const setCols = (col) => ({
+export const setColumn = (col) => ({
     type: 'SET_COLUMN',
     col
 });

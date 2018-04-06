@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 // import { fetchGraphIfNeeded } from '../../actions/graphActions';
-import { loadFiles, selectedNodes, getCols } from './DashboardActions';
+import { loadFiles } from './DashboardActions';
 import compose from 'recompose/compose';
 import Graph from './Graph';
 import FileUpload from '../../components/FileUpload';
 // import Select from 'material-ui/Select';
 import { withStyles } from 'material-ui/styles';
-import SelectItem from '../../components/SelectItem';
+import FileSelect from './FileSelect';
 
 const styles = theme => ({
     root: theme.mixins.gutters({
@@ -72,36 +72,11 @@ export class Dashboard extends React.Component {
             };
         });
     }
-    selectChange(e) {
-        console.log(e);
-        const file = this.props.uploadedFiles.filter( f => f.filename === e.target.value);
-        file[0].selectedNodes = true;
-        console.log(file);
-        this.props.selectNodes(file[0].filename);
-        const test = this.props.getCols(file);
-        console.log(test);
-    }
     render() {
-        const { classes, uploadedFiles, nodes, columns, col1 } = this.props;
-        console.log(columns.length);
+        const { classes } = this.props;
         return (
             <div>
-                {uploadedFiles.length > 0 ? <SelectItem
-                    items={uploadedFiles.map(i => i.filename)}
-                    onChange={(e)=>this.selectChange(e)}
-                    value={nodes}
-                    classes={classes}
-                    title={'Select Nodes'}
-                    helperText={'Select a file to be the nodes values in the network.'}
-                /> : null}
-                {columns.length > 0 ? <SelectItem
-                    items={columns}
-                    onChange={(e)=>this.selectChange(e)}
-                    value={col1}
-                    classes={classes}
-                    title={'Select Column'}
-                    helperText={'Select a column to use in the network.'}
-                /> : null}
+                <FileSelect/>
                 <Graph/>
                 <FileUpload handleClose={this.handleClose} open={this.state.open} droppedFiles={this.state.droppedFiles} handleClickOpen={this.handleClickOpen}
                     classes={classes}
@@ -126,29 +101,17 @@ const mapStateToProps = (state) => {
     const { dashboardReducer } = state;
     const {
         uploadedFiles,
-        nodes,
-        columns,
-        col1,
     } = dashboardReducer;
 
     return {
         uploadedFiles,
-        nodes,
-        columns,
-        col1
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        selectNodes: (nodes) => {
-            dispatch(selectedNodes(nodes));
-        },
         saveCSVs: (file) =>{
             dispatch(loadFiles(file));
-        },
-        getCols: (file) =>{
-            dispatch(getCols(file));
         }
     };
 };
