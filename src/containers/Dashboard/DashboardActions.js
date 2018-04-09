@@ -9,6 +9,7 @@ export const GETTING_ITEMS = 'GETTING_ITEMS';
 export const CREATING_NETWORK = 'CREATING_NETWORK';
 export const LOAD_COLUMNS = 'LOAD_COLUMNS';
 export const SET_COLUMN = 'SET_COLUMN';
+export const HAS_EDGES = 'HAS_EDGES';
 
 // Loading Files
 export const loadFiles = (uploadedFiles) => ({
@@ -107,6 +108,10 @@ export const creatingNetwork = () => ({
 export const createNetwork = (json) => ({
     type: 'CREATE_NETWORK',
     network: json
+});
+
+export const hasEdges = () => ({
+    type: 'HAS_EDGES'
 });
 
 export const createNetworkEdges = (nodes, edges, index) => {

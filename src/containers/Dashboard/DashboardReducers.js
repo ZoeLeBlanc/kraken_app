@@ -1,14 +1,15 @@
-import { LOAD_CSV_OPTIONS, SAVING_CSV, SELECTED_NODES, SELECTED_EDGES, LOAD_FILES, LOAD_COLUMNS, GETTING_ITEMS, SET_COLUMN } from './DashboardActions';
+import { LOAD_CSV_OPTIONS, SAVING_CSV, SELECTED_NODES, SELECTED_EDGES, LOAD_FILES, LOAD_COLUMNS, GETTING_ITEMS, SET_COLUMN, HAS_EDGES } from './DashboardActions';
 
 const dashboardReducer = (state = {
     isSaving: false,
     headers: {},
     nodes: '',
-    edges: [],
+    edges: '',
     columns: [],
     uploadedFiles: [],
     isGetting: false,
-    selectedCols: []
+    selectedCols: [],
+    networkHasEdges: false,
 }, action) => {
     switch (action.type) {
         case LOAD_COLUMNS:
@@ -41,6 +42,11 @@ const dashboardReducer = (state = {
             return {
                 ...state,
                 isGetting: !state.isGetting
+            };
+        case HAS_EDGES:
+            return {
+                ...state,
+                networkHasEdges: !state.networkHasEdges
             };
         case LOAD_FILES:
             return {

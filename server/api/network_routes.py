@@ -20,8 +20,8 @@ def get_csv_headers():
 @network_routes.route('/api/network/create_network_nodes_edges')
 def create_network_nodes_edges(request):
     files = request.files['file']
-    nodes_file = [f for f in files if 'nodes' in f.file_name ]
-    edges_file = [f for f in files if 'edges' in f.file_name ]
+    nodes_file = [f for f in files if f.selectedNodes == True ]
+    edges_file = [f for f in files if f.selectedEdges == True]
     index = request.data['index']
     nodes = pd.read_csv(nodes_file)
     edges = pd.read_csv(edges_file)
