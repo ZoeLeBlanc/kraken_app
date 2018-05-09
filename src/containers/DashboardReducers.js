@@ -1,4 +1,4 @@
-import { LOAD_CSV_OPTIONS, SAVING_CSV, SELECTED_NODES, SELECTED_EDGES, LOAD_FILES, LOAD_COLUMNS, GETTING_ITEMS, SET_COLUMN, HAS_EDGES } from './DashboardActions';
+import { LOAD_CSV_OPTIONS, SAVING_CSV, SELECTED_NODES, SELECTED_EDGES, LOAD_FILES, LOAD_COLUMNS, GETTING_ITEMS, SET_COLUMN, HAS_EDGES, CREATE_NETWORK, REQUEST_NETWORK } from './DashboardActions';
 
 const dashboardReducer = (state = {
     isSaving: false,
@@ -10,12 +10,19 @@ const dashboardReducer = (state = {
     isGetting: false,
     selectedCols: [],
     networkHasEdges: false,
+    network: {},
+    isFetching: false,
 }, action) => {
     switch (action.type) {
         case LOAD_COLUMNS:
             return {
                 ...state,
                 columns: action.cols
+            };
+        case REQUEST_NETWORK:
+            return {
+                ...state,
+                isFetching: !state.isFetching
             };
         case SAVING_CSV:
             return {
@@ -56,8 +63,12 @@ const dashboardReducer = (state = {
         case SET_COLUMN:
             return {
                 ...state,
-                columns: state.columns.filter(col => col !== action.col),
                 selectedCols: [...state.selectedCols, action.col]
+            };
+        case CREATE_NETWORK:
+            return {
+                ...state,
+                network: action.network
             };
         default:
             return state;

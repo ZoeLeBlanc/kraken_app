@@ -22,7 +22,7 @@ const styles = theme => ({
         color: theme.palette.text.secondary,
     },
 });
-export class Graph extends React.Component {
+export class Neo4jGraph extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -66,7 +66,7 @@ export class Graph extends React.Component {
         );
     }
 }
-Graph.propTypes = {
+Neo4jGraph.propTypes = {
     graph: PropTypes.object,
     getGraph: PropTypes.func,
     isFetching: PropTypes.bool,
@@ -94,6 +94,6 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 export default compose(
-    withStyles(styles, { name: 'Graph' }),
+    withStyles(styles, { name: 'Neo4jGraph' }),
     connect(mapStateToProps, mapDispatchToProps)
-)(Graph);
+)(Neo4jGraph);

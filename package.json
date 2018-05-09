@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scholarslab/kraken_app.git"
   },
   "scripts": {
-    "start": "NODE_PATH=src/ node server",
+    "start": "PORT=3006 NODE_PATH=src/ node server",
     "build": "rimraf dist && cross-env NODE_ENV=production webpack --config ./webpack.production.config.js --progress --profile --colors",
     "eslint": "eslint .",
     "compress": "./node_modules/webpack/bin/webpack.js --config webpack.config.js",

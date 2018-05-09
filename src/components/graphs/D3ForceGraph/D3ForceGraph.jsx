@@ -131,18 +131,18 @@ export default class D3ForceGraph extends React.Component {
     isConnected(a, b) {
         return this.linkedByIndex[`${a.index},${b.index}`] || this.linkedByIndex[`${b.index},${a.index}`] || a.index === b.index;
     }
-    onDragStart(d: any) {
+    onDragStart(d) {
         if (!d3.event.active) {
             this.simulation.alphaTarget(0.3).restart();
         }
         d.fx = d.x;
         d.fy = d.y;
     }
-    onDrag(d: any) {
+    onDrag(d) {
         d.fx = d3.event.x;
         d.fy = d3.event.y;
     }
-    onDragEnd(d: any) {
+    onDragEnd(d) {
         if (!d3.event.active) {
             this.simulation.alphaTarget(0);
         }

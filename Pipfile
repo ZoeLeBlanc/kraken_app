@@ -16,6 +16,7 @@ flask-restful = "*"
 pytest = "==3.0.6"
 pandas = "*"
 networkx = "*"
+python-louvain = "*"
 
 
 [dev-packages]

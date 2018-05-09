@@ -11,7 +11,7 @@ export default class SelectItem extends React.Component {
     }
     render() {
         const { classes, value, onChange, items, title, helperText} = this.props;
-        console.log(value);
+        console.log(typeof value);
         return (
             <FormControl className={classes.formControl}>
                 <InputLabel htmlFor="{title}">{title}</InputLabel>
